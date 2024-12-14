@@ -33,10 +33,6 @@ jobs:
           - os: macos-13
             arch: x86_64
           - os: ubuntu-latest
-            arch: aarch64
-          - os: ubuntu-latest
-            arch: i686
-          - os: ubuntu-latest
             arch: x86_64
           - os: windows-latest
             arch: AMD64
