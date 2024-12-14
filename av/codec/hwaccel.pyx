@@ -38,6 +38,7 @@ class Capabilities(IntEnum):
     encoder_recon_frame = 1 << 22
 
 class HWDeviceType(IntEnum):
+    NONE = lib.AV_HWDEVICE_TYPE_NONE
     VDPAU = lib.AV_HWDEVICE_TYPE_VDPAU
     CUDA = lib.AV_HWDEVICE_TYPE_CUDA
     VAAPI = lib.AV_HWDEVICE_TYPE_VAAPI

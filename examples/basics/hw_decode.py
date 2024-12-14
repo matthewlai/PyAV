@@ -34,8 +34,32 @@ container.close()
 
 print(f"Decoded with software in {sw_time:.2f}s ({sw_fps:.2f} fps).")
 
-# Use the first available decoder.
+# Use the first available decoder on this list.
+DECODER_PREFERENCES = [
+    # Only choice on Macs. Access to all accelerators.
+    'videotoolbox',
+
+    # NVIDIA on Windows/Linux. Faster than d3d11va on NVIDIA cards on Windows,
+    # but requires FFmpeg to be built with CUDA support.
+    'cuda',
+
+    # Widely available on Windows and allows access to all accelerators
+    # (though not as fast as vendor-specific native interfaces).
+    'd3d11va',
+
+    # Now we need to deal with Intel and AMD on Linux. They should both support
+    # VAAPI. NVIDIA only supports it with the unofficial nvidia-vaapi-driver, but
+    # we should be using CUDA for NVIDIA on Linux anyways.
+    'vaapi'
+]
+
+# Fallback... just pick the first one.
 device_type = av.codec.hwaccel.hwdevices_available[0]
+
+for candidate in DECODER_PREFERENCES:
+    if candidate in av.codec.hwaccel.hwdevices_available:
+        device_type = candidate
+        break
 
 print(f"Decoding with {device_type}")
 
