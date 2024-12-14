@@ -1,9 +1,11 @@
 from fractions import Fraction
 import functools
+import os
 import pathlib
 
 import av
 import numpy as np
+import pytest
 
 from .common import TestCase, fate_suite
 
@@ -198,15 +200,20 @@ class TestDecode(TestCase):
         assert frame.rotation == -90
 
     def test_hardware_decode(self) -> None:
-        if not av.codec.hwaccel.hwdevices_available:
-            pytest.skip("No hardware-accelerated decoder available")
+        if 'HWACCEL_DEVICE_TYPE' not in os.environ:
+            pytest.skip(
+                "Set the HWACCEL_DEVICE_TYPE to run this test. "
+                f"Options are {' '.join(av.codec.hwaccel.hwdevices_available)}")
+
+        HWACCEL_DEVICE_TYPE = os.environ["HWACCEL_DEVICE_TYPE"]
+
+        assert HWACCEL_DEVICE_TYPE in av.codec.hwaccel.hwdevices_available, f'{HWACCEL_DEVICE_TYPE} not available'
 
         test_video_path = "tests/assets/black.mp4"
         make_h264_test_video(test_video_path)
 
         # Test decode.
-        hwaccel = av.codec.hwaccel.HWAccel(device_type=av.codec.hwaccel.hwdevices_available[0],
-            allow_software_fallback=False)
+        hwaccel = av.codec.hwaccel.HWAccel(device_type=HWACCEL_DEVICE_TYPE, allow_software_fallback=False)
 
         container = av.open(test_video_path, hwaccel=hwaccel)
         video_stream = next(s for s in container.streams if s.type == "video")

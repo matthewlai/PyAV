@@ -4,16 +4,35 @@ import time
 import av
 import av.datasets
 
+# What accelerator to use.
+# Recommendations:
+#   Windows:
+#       - d3d11va (Direct3D 11)
+#           * available with built-in ffmpeg in PyAV binary wheels, and gives access to
+#             all decoders, but performance may not be as good as vendor native interfaces.
+#       - cuda (NVIDIA NVDEC), qsv (Intel QuickSync)
+#           * may be faster than d3d11va, but requires custom ffmpeg built with those libraries.
+#   Linux (all options require custom FFmpeg): 
+#       - vaapi (Intel, AMD)
+#       - cuda (NVIDIA)
+#   Mac:
+#       - videotoolbox
+#           * available with built-in ffmpeg in PyAV binary wheels, and gives access to
+#             all accelerators available on Macs. This is the only option on MacOS.
+
+HW_DEVICE = os.environ['HW_DEVICE'] if 'HW_DEVICE' in os.environ else None
 
 if 'TEST_FILE_PATH' in os.environ:
     test_file_path = os.environ['TEST_FILE_PATH']
 else:
     test_file_path = av.datasets.curated("pexels/time-lapse-video-of-night-sky-857195.mp4")
 
-assert av.codec.hwaccel.hwdevices_available, "No hardware-accelerated decoder available"
+if HW_DEVICE is None:
+    av.codec.hwaccel.dump_hwdevices()   
+    print('Please set HW_DEVICE.')
+    exit()
 
-av.codec.hwaccel.dump_hwdevices()
-av.codec.codec.dump_hwconfigs()
+assert HW_DEVICE in av.codec.hwaccel.hwdevices_available, f'{HW_DEVICE} not available.'
 
 print("Decoding in software (auto threading)...")
 
@@ -34,37 +53,10 @@ container.close()
 
 print(f"Decoded with software in {sw_time:.2f}s ({sw_fps:.2f} fps).")
 
-# Use the first available decoder on this list.
-DECODER_PREFERENCES = [
-    # Only choice on Macs. Access to all accelerators.
-    'videotoolbox',
-
-    # NVIDIA on Windows/Linux. Faster than d3d11va on NVIDIA cards on Windows,
-    # but requires FFmpeg to be built with CUDA support.
-    'cuda',
-
-    # Widely available on Windows and allows access to all accelerators
-    # (though not as fast as vendor-specific native interfaces).
-    'd3d11va',
-
-    # Now we need to deal with Intel and AMD on Linux. They should both support
-    # VAAPI. NVIDIA only supports it with the unofficial nvidia-vaapi-driver, but
-    # we should be using CUDA for NVIDIA on Linux anyways.
-    'vaapi'
-]
-
-# Fallback... just pick the first one.
-device_type = av.codec.hwaccel.hwdevices_available[0]
-
-for candidate in DECODER_PREFERENCES:
-    if candidate in av.codec.hwaccel.hwdevices_available:
-        device_type = candidate
-        break
-
-print(f"Decoding with {device_type}")
+print(f"Decoding with {HW_DEVICE}")
 
 hwaccel = av.codec.hwaccel.HWAccel(
-    device_type=device_type,
+    device_type=HW_DEVICE,
     allow_software_fallback=False)
 
 # Note the additional argument here.
@@ -81,4 +73,4 @@ hw_fps = frame_count / hw_time
 assert frame_count == container.streams.video[0].frames
 container.close()
 
-print(f"Decoded with {device_type} in {hw_time:.2f}s ({hw_fps:.2f} fps).")
+print(f"Decoded with {HW_DEVICE} in {hw_time:.2f}s ({hw_fps:.2f} fps).")
