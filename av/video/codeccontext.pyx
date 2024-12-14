@@ -12,7 +12,7 @@ from av.video.frame cimport VideoFrame, alloc_video_frame
 from av.video.reformatter cimport VideoReformatter
 
 
-cdef lib.AVPixelFormat _get_hw_format(lib.AVCodecContext *ctx, lib.AVPixelFormat *pix_fmts) noexcept:
+cdef lib.AVPixelFormat _get_hw_format(lib.AVCodecContext *ctx, const lib.AVPixelFormat *pix_fmts) noexcept:
     # In the case where we requested accelerated decoding, the decoder first calls this function
     # with a list that includes both the hardware format and software formats.
     # First we try to pick the hardware format if it's in the list.
