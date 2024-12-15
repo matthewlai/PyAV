@@ -2,6 +2,7 @@ cimport libav as lib
 
 from av.codec.codec cimport Codec
 
+
 cdef class HWConfig(object):
     cdef object __weakref__
     cdef lib.AVCodecHWConfig *ptr

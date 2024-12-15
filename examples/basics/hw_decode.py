@@ -12,7 +12,7 @@ import av.datasets
 #             all decoders, but performance may not be as good as vendor native interfaces.
 #       - cuda (NVIDIA NVDEC), qsv (Intel QuickSync)
 #           * may be faster than d3d11va, but requires custom ffmpeg built with those libraries.
-#   Linux (all options require custom FFmpeg): 
+#   Linux (all options require custom FFmpeg):
 #       - vaapi (Intel, AMD)
 #       - cuda (NVIDIA)
 #   Mac:
@@ -20,19 +20,21 @@ import av.datasets
 #           * available with built-in ffmpeg in PyAV binary wheels, and gives access to
 #             all accelerators available on Macs. This is the only option on MacOS.
 
-HW_DEVICE = os.environ['HW_DEVICE'] if 'HW_DEVICE' in os.environ else None
+HW_DEVICE = os.environ["HW_DEVICE"] if "HW_DEVICE" in os.environ else None
 
-if 'TEST_FILE_PATH' in os.environ:
-    test_file_path = os.environ['TEST_FILE_PATH']
+if "TEST_FILE_PATH" in os.environ:
+    test_file_path = os.environ["TEST_FILE_PATH"]
 else:
-    test_file_path = av.datasets.curated("pexels/time-lapse-video-of-night-sky-857195.mp4")
+    test_file_path = av.datasets.curated(
+        "pexels/time-lapse-video-of-night-sky-857195.mp4"
+    )
 
 if HW_DEVICE is None:
-    av.codec.hwaccel.dump_hwdevices()   
-    print('Please set HW_DEVICE.')
+    av.codec.hwaccel.dump_hwdevices()
+    print("Please set HW_DEVICE.")
     exit()
 
-assert HW_DEVICE in av.codec.hwaccel.hwdevices_available, f'{HW_DEVICE} not available.'
+assert HW_DEVICE in av.codec.hwaccel.hwdevices_available, f"{HW_DEVICE} not available."
 
 print("Decoding in software (auto threading)...")
 
@@ -55,9 +57,7 @@ print(f"Decoded with software in {sw_time:.2f}s ({sw_fps:.2f} fps).")
 
 print(f"Decoding with {HW_DEVICE}")
 
-hwaccel = av.codec.hwaccel.HWAccel(
-    device_type=HW_DEVICE,
-    allow_software_fallback=False)
+hwaccel = av.codec.hwaccel.HWAccel(device_type=HW_DEVICE, allow_software_fallback=False)
 
 # Note the additional argument here.
 container = av.open(test_file_path, hwaccel=hwaccel)

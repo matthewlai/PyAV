@@ -1,8 +1,7 @@
 from __future__ import print_function
 
-from enum import IntEnum
-
 import weakref
+from enum import IntEnum
 
 cimport libav as lib
 
@@ -12,6 +11,7 @@ from av.error cimport err_check
 from av.video.format cimport get_video_format
 
 from av.dictionary import Dictionary
+
 
 class Capabilities(IntEnum):
     none = 0

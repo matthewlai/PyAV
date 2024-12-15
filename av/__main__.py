@@ -6,8 +6,8 @@ import argparse
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--codecs", action="store_true")
-    parser.add_argument('--hwdevices', action='store_true')
-    parser.add_argument('--hwconfigs', action='store_true')
+    parser.add_argument("--hwdevices", action="store_true")
+    parser.add_argument("--hwconfigs", action="store_true")
     parser.add_argument("--version", action="store_true")
     args = parser.parse_args()
 
@@ -34,10 +34,12 @@ def main() -> None:
 
     if args.hwdevices:
         from av.codec.hwaccel import dump_hwdevices
+
         dump_hwdevices()
 
     if args.hwconfigs:
         from av.codec.codec import dump_hwconfigs
+
         dump_hwconfigs()
 
     if args.codecs:

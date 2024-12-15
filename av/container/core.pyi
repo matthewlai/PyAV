@@ -4,7 +4,7 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any, Callable, ClassVar, Literal, Type, overload
 
-from av.codec.hwaccel cimport HWAccel
+from av.codec.hwaccel import HWAccel
 from av.format import ContainerFormat
 
 from .input import InputContainer

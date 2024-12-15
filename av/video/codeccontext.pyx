@@ -37,8 +37,6 @@ cdef class VideoCodecContext(CodecContext):
     cdef _init(self, lib.AVCodecContext *ptr, const lib.AVCodec *codec, HWAccel hwaccel):
         CodecContext._init(self, ptr, codec, hwaccel)  # TODO: Can this be `super`?
 
-        self.ptr.pix_fmt = lib.AV_PIX_FMT_NONE
-
         if hwaccel is not None:
             try:
                 self.hwaccel_ctx = hwaccel.create(self.codec)
