@@ -13,6 +13,8 @@ cdef HWConfig wrap_hwconfig(lib.AVCodecHWConfig *ptr)
 cdef class HWAccel:
     cdef int _device_type
     cdef str _device
+    cdef list _sw_format_preferences
+    cdef lib.AVPixelFormat _sw_fmt
     cdef readonly Codec codec
     cdef readonly HWConfig config
     cdef lib.AVBufferRef *ptr

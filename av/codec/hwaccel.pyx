@@ -6,7 +6,7 @@ cimport libav as lib
 from av.codec.codec cimport Codec
 from av.dictionary cimport _Dictionary
 from av.error cimport err_check
-from av.video.format cimport get_video_format
+from av.video.format cimport get_video_format, get_pix_fmt
 
 from av.dictionary import Dictionary
 
@@ -95,7 +95,7 @@ cpdef hwdevices_available():
 
 
 cdef class HWAccel:
-    def __init__(self, device_type, device=None, allow_software_fallback=True, options=None):
+    def __init__(self, device_type, device=None, allow_software_fallback=True, options=None, sw_format_preferences=[]):
         if isinstance(device_type, HWDeviceType):
             self._device_type = device_type
         elif isinstance(device_type, str):
@@ -106,6 +106,14 @@ cdef class HWAccel:
             raise ValueError("Unknown type for device_type")
 
         self._device = device
+
+        self._sw_format_preferences = []
+        for pref in sw_format_preferences:
+            if isinstance(pref, str):
+                self._sw_format_preferences.append(get_pix_fmt(pref))
+            else:
+                self._sw_format_preferences.append(pref)
+
         self.allow_software_fallback = allow_software_fallback
         self.options = {} if not options else dict(options)
         self.ptr = NULL
@@ -145,7 +153,8 @@ cdef class HWAccel:
             device_type=self._device_type,
             device=self._device,
             allow_software_fallback=self.allow_software_fallback,
-            options=self.options
+            options=self.options,
+            sw_format_preferences=self._sw_format_preferences
         )
         ret._initialize_hw_context(codec)
         return ret

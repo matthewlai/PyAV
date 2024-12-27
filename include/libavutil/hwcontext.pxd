@@ -15,10 +15,15 @@ cdef extern from "libavutil/hwcontext.h" nogil:
         AV_HWDEVICE_TYPE_VULKAN
         AV_HWDEVICE_TYPE_D3D12VA
 
+    enum AVHWFrameTransferDirection:
+        AV_HWFRAME_TRANSFER_DIRECTION_FROM
+        AV_HWFRAME_TRANSFER_DIRECTION_TO
+
     cdef int av_hwdevice_ctx_create(AVBufferRef **device_ctx, AVHWDeviceType type, const char *device, AVDictionary *opts, int flags)
 
     cdef AVHWDeviceType av_hwdevice_find_type_by_name(const char *name)
     cdef const char *av_hwdevice_get_type_name(AVHWDeviceType type)
     cdef AVHWDeviceType av_hwdevice_iterate_types(AVHWDeviceType prev)
 
+    cdef int av_hwframe_transfer_get_formats(AVBufferRef *hwframe_ctx, AVHWFrameTransferDirection dir, AVPixelFormat **formats, int flags)
     cdef int av_hwframe_transfer_data(AVFrame *dst, const AVFrame *src, int flags)

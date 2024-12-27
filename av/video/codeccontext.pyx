@@ -108,8 +108,35 @@ cdef class VideoCodecContext(CodecContext):
             return frame
 
         cdef Frame frame_sw
-
         frame_sw = self._alloc_next_frame()
+
+        cdef lib.AVPixelFormat* supported_formats_buf
+
+        print('checking')
+        if self.hwaccel_ctx._sw_format_preferences:
+            print('have pref')
+            print(f'from fmt:')
+            print(<str>lib.av_pix_fmt_desc_get(<lib.AVPixelFormat>frame.ptr.format).name)
+            err_check(lib.av_hwframe_transfer_get_formats(
+                frame.ptr.hw_frames_ctx, lib.AV_HWFRAME_TRANSFER_DIRECTION_FROM, &supported_formats_buf, 0))
+            i = 0
+            supported_formats = []
+            while True:
+                fmt = supported_formats_buf[i]
+                if fmt == lib.AV_PIX_FMT_NONE:
+                    break
+                else:
+                    supported_formats.append(fmt)
+                    i += 1
+            lib.av_freep(&supported_formats_buf)
+            print(f'supported:')
+            for f in supported_formats:
+                desc = lib.av_pix_fmt_desc_get(f)
+                print(<str>desc.name)
+            for pref in self.hwaccel_ctx._sw_format_preferences:
+                if pref in supported_formats:
+                    frame_sw.format = pref
+            print(f'picked: {frame_sw.format}')
 
         err_check(lib.av_hwframe_transfer_data(frame_sw.ptr, frame.ptr, 0))
 

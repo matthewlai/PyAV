@@ -406,6 +406,8 @@ cdef extern from "libavcodec/avcodec.h" nogil:
 
         int pkt_size
 
+        AVBufferRef *hw_frames_ctx
+
         uint8_t **base
         void *opaque
         AVBufferRef *opaque_ref
